@@ -3,6 +3,7 @@ package com.spotify.metrics.jmh;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Snapshot;
 import com.spotify.metrics.core.HistogramWithTtl;
+import com.spotify.metrics.core.ReservoirWithTtl;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -13,31 +14,17 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
 
-/**
- * The benchmark here tries to simulate real-world usage of a Histogram, where several threads are
- * calling update() and one thread is calling getSnapshot (the ffwd reporting thread). This is
- * achieved by having two Benchmark methods in the same Group - JMH runs both concurrently.
- *
- * TODO: In the real world, a service with a lot of request volume, `histogram.update()` will be called
- * a lot more frequently than `histogram.getSnapshot()` - need to look into how to model this with
- * JMH.
- * The number of threads used for each method defaults to a 10:1 ratio (via the annotations on the
- * methods), but this can be overridden when running the benchmark with the `-tg` flag.
- *
- * Reference: https://hg.openjdk.java.net/code-tools/jmh/file/b6f87aa2a687/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_15_Asymmetric.java
- */
 @State(Scope.Group)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
-public class OriginalReservoirWithTtlBenchmark {
+public class ReservoirWithTtlBenchmark {
 
   private Histogram histogram;
 
   @Setup
   public void setUp() {
-    histogram = new Histogram(new OriginalReservoirWithTtl());
+    histogram = new Histogram(new ReservoirWithTtl());
   }
 
   @Benchmark
